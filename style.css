@@ -1,3 +1,27 @@
+*,
+*::before,
+*::after {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.note {
+    width: 100px;
+    position: absolute;
+
+    display: grid;
+    grid-auto-flow: row;
+}
+
+.drag-bar {
+    height: 20px;
+    background-color: goldenrod;
+
+    /* Disable default browser touch controls */
+    touch-action: none;
+}
+
 textarea {
-    position: fixed;
+    min-width: 100px;
 }

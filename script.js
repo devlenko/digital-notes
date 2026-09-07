@@ -1,24 +1,25 @@
-const note = document.querySelector("textarea");
+const note = document.querySelector(".note");
+const dragBar = note.querySelector(".drag-bar");
 
-let x, y = 0;
-let deltaX, deltaY = 0;
+let isDragging = false;
 
-note.addEventListener("mousedown", event => {
-    x = event.clientX;
-    y = event.clientY;
-
-    document.addEventListener("mousemove", moveNote);
-    document.addEventListener("mouseup", () => document.removeEventListener("mousemove", moveNote));
+dragBar.addEventListener("pointerdown", event => {
+    // Force the bar to keep tracking the event even if it moves outside the bar's bounds
+    dragBar.setPointerCapture(event.pointerId);
+    isDragging = true;
 });
 
-function moveNote(event) {
-    let newX = event.clientX, newY = event.clientY;
+dragBar.addEventListener("pointermove", event => {
+    if (!isDragging) return;
 
-    deltaX = newX - x;
-    deltaY = newY - y;
-    x = newX;
-    y = newY;
+    note.style.left = `${note.offsetLeft + event.movementX}px`;
+    note.style.top = `${note.offsetTop + event.movementY}px`;
+})
 
-    note.style.left = (note.offsetLeft + deltaX) + "px";
-    note.style.top = (note.offsetTop + deltaY) + "px";
+function stopDragging(event) {
+    dragBar.releasePointerCapture(event.pointerId);
+    isDragging = false;
 }
+
+dragBar.addEventListener("pointerup", stopDragging);
+dragBar.addEventListener("pointercancel", stopDragging);
