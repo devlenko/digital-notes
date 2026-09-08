@@ -7,7 +7,7 @@
 }
 
 .note {
-    width: 100px;
+    width: auto;
     position: absolute;
 
     display: grid;
