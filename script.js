@@ -1,5 +1,6 @@
 const note = document.querySelector(".note");
 const dragBar = note.querySelector(".drag-bar");
+const noteText = note.querySelector("textarea");
 
 let isDragging = false;
  
@@ -30,7 +31,9 @@ dragBar.addEventListener("pointermove", event => {
             proposedLeft = window.innerWidth - note.getBoundingClientRect().width;
         }
 
+        // Update left position and send it to CSS
         note.style.left = `${proposedLeft}px`;
+        noteText.style.setProperty("--left-pos", `${noteText.getBoundingClientRect().left}px`);
     }
     else if (
         (xUnlockPos < window.innerWidth / 2 && event.clientX >= xUnlockPos) ||
@@ -51,7 +54,9 @@ dragBar.addEventListener("pointermove", event => {
             proposedTop = window.innerHeight - note.getBoundingClientRect().height;
         }
 
+        // Update top position and send it to CSS
         note.style.top = `${proposedTop}px`;
+        noteText.style.setProperty("--top-pos", `${noteText.getBoundingClientRect().top}px`);
     }
     else if (
         (yUnlockPos < window.innerHeight / 2 && event.clientY >= yUnlockPos) ||
@@ -68,3 +73,17 @@ function stopDragging(event) {
 
 dragBar.addEventListener("pointerup", stopDragging);
 dragBar.addEventListener("pointercancel", stopDragging);
+
+
+const observer = new ResizeObserver(entries => {
+    for (let entry of entries) {
+        // Force inline dimensions to match calculated CSS dimensions
+        const inlineStyle = entry.target.style;
+        const computedStyle = window.getComputedStyle(entry.target);
+
+        inlineStyle.width = computedStyle.width;
+        inlineStyle.height = computedStyle.height;
+    }
+});
+
+observer.observe(noteText);
