@@ -3,68 +3,34 @@ const dragBar = note.querySelector(".drag-bar");
 const noteText = note.querySelector("textarea");
 
 let isDragging = false;
- 
-let canMoveOnX = true, canMoveOnY = true;
-let xUnlockPos = null, yUnlockPos = null;
+
+let startVals = { x: null, y: null, left: null, top: null };
 
 dragBar.addEventListener("pointerdown", event => {
     // Force the bar to keep tracking the event even if it moves outside the bar's bounds
     dragBar.setPointerCapture(event.pointerId);
     isDragging = true;
+
+    startVals = { x: event.clientX, y: event.clientY, left: note.offsetLeft, top: note.offsetTop};
 });
 
 dragBar.addEventListener("pointermove", event => {
     if (!isDragging) return;
 
-    let proposedLeft = note.offsetLeft + event.movementX;
-    let proposedTop = note.offsetTop + event.movementY;
+    const deltaX = event.clientX - startVals.x;
+    const deltaY = event.clientY - startVals.y;
 
-    if (canMoveOnX) {
-        if (proposedLeft < 0) {
-            canMoveOnX = false;
-            xUnlockPos = event.clientX;
-            proposedLeft = 0;
-        }
-        else if (proposedLeft > window.innerWidth - note.getBoundingClientRect().width) {
-            canMoveOnX = false;
-            xUnlockPos = event.clientX;
-            proposedLeft = window.innerWidth - note.getBoundingClientRect().width;
-        }
+    const newLeft = Math.max(0, Math.min(startVals.left + deltaX, window.innerWidth - note.offsetWidth));
+    const newTop = Math.max(0, Math.min(startVals.top + deltaY, window.innerHeight - note.offsetHeight));
 
-        // Update left position and send it to CSS
-        note.style.left = `${proposedLeft}px`;
-        noteText.style.setProperty("--left-pos", `${noteText.getBoundingClientRect().left}px`);
-    }
-    else if (
-        (xUnlockPos < window.innerWidth / 2 && event.clientX >= xUnlockPos) ||
-        (xUnlockPos > window.innerWidth / 2 && event.clientX <= xUnlockPos)
-    ) {
-        canMoveOnX = true;
-    }
+    // Update position on screen
+    note.style.left = `${newLeft}px`;
+    note.style.top = `${newTop}px`;
 
-    if (canMoveOnY) {
-        if (proposedTop < 0) {
-            canMoveOnY = false;
-            yUnlockPos = event.clientY;
-            proposedTop = 0;
-        }
-        else if (proposedTop > window.innerHeight - note.getBoundingClientRect().height) {
-            canMoveOnY = false;
-            yUnlockPos = event.clientY;
-            proposedTop = window.innerHeight - note.getBoundingClientRect().height;
-        }
-
-        // Update top position and send it to CSS
-        note.style.top = `${proposedTop}px`;
-        noteText.style.setProperty("--top-pos", `${noteText.getBoundingClientRect().top}px`);
-    }
-    else if (
-        (yUnlockPos < window.innerHeight / 2 && event.clientY >= yUnlockPos) ||
-        (yUnlockPos > window.innerHeight / 2 && event.clientY <= yUnlockPos)
-    ) {
-        canMoveOnY = true;
-    }
-})
+    // Send position to CSS to force browser to adhere to boundary constraints
+    noteText.style.setProperty("--left-pos", `${noteText.getBoundingClientRect().left}px`);
+    noteText.style.setProperty("--top-pos", `${noteText.getBoundingClientRect().top}px`);
+});
 
 function stopDragging(event) {
     dragBar.releasePointerCapture(event.pointerId);
@@ -74,16 +40,16 @@ function stopDragging(event) {
 dragBar.addEventListener("pointerup", stopDragging);
 dragBar.addEventListener("pointercancel", stopDragging);
 
-
-const observer = new ResizeObserver(entries => {
+const textareaSizeSyncer = new ResizeObserver(entries => {
     for (let entry of entries) {
-        // Force inline dimensions to match calculated CSS dimensions
+        // Normalize the requested inline dimensions to match the calculated CSS dimensions
+        // This prevents the browser from using the inaccurate inline dimensions when pulling the textarea back from the border
         const inlineStyle = entry.target.style;
         const computedStyle = window.getComputedStyle(entry.target);
 
-        inlineStyle.width = computedStyle.width;
-        inlineStyle.height = computedStyle.height;
+        if (inlineStyle.width !== computedStyle.width)  inlineStyle.width = computedStyle.width;
+        if (inlineStyle.height !== computedStyle.height) inlineStyle.height = computedStyle.height;
     }
 });
 
-observer.observe(noteText);
+textareaSizeSyncer.observe(noteText);
