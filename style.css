@@ -7,6 +7,8 @@
 }
 
 .note {
+    max-width: 100%;
+    max-height: 100%;
     position: fixed;
 
     display: grid;
@@ -22,8 +24,6 @@
 }
 
 textarea {
-    min-width: 100px;
-    
     /* Prevents browser from fighting with custom resize logic when resize is attempted */
     --left-pos: 0px;
     --top-pos: 0px;
