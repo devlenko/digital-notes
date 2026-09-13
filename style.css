@@ -34,3 +34,9 @@ textarea {
     max-width: calc(100vw - var(--left-pos));
     max-height: calc(100vh - var(--top-pos));
 }
+
+.btn-group {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+}

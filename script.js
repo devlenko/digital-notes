@@ -1,49 +1,80 @@
-const note = document.querySelector(".note");
-const dragBar = note.querySelector(".drag-bar");
-const noteText = note.querySelector("textarea");
+let noteCount = 0;
 
-let isDragging = false;
+const noteGroup = document.querySelector(".note-group");
+const addNoteBtn = document.getElementById("add-note-btn");
 
-let dragStartVals = { x: null, y: null, left: null, top: null };
-let resizeStartVals = { width: noteText.getBoundingClientRect().width, height: noteText.getBoundingClientRect().height };
+function createNote() {
+    // Create and store the note and inner elements
+    noteGroup.insertAdjacentHTML("beforeend", `
+        <div class="note">
+            <div class="drag-bar"></div>
+            <textarea></textarea> 
+        </div>    
+    `);
 
-dragBar.addEventListener("pointerdown", event => {
-    // Force the bar to keep tracking the event even if it moves outside the bar's bounds
-    dragBar.setPointerCapture(event.pointerId);
-    isDragging = true;
+    const note = noteGroup.getElementsByClassName("note")[noteCount];
+    const dragBar = note.querySelector(".drag-bar");
+    const textarea = note.querySelector("textarea");
+    noteCount++;
+    
+    // Define note values for dragging and resizing
+    note.isDragging = false;
+    note.updateStartVals = {
+        x: null,
+        y: null,
+        left: null,
+        top: null,
+        width: textarea.getBoundingClientRect().width,
+        height: textarea.getBoundingClientRect().height
+    };
+    textarea.parent = note;
 
-    dragStartVals = { x: event.clientX, y: event.clientY, left: note.offsetLeft, top: note.offsetTop};
-});
+    dragBar.addEventListener("pointerdown", event => {
+        // Force the bar to keep tracking the event even if it moves outside the bar's bounds
+        dragBar.setPointerCapture(event.pointerId);
+        note.isDragging = true;
 
-dragBar.addEventListener("pointermove", event => {
-    if (!isDragging) return;
+        note.updateStartVals = { 
+            ...note.updateStartVals,
+            x: event.clientX,
+            y: event.clientY,
+            left: note.offsetLeft,
+            top: note.offsetTop
+        };
+    });
 
-    const deltaX = event.clientX - dragStartVals.x;
-    const deltaY = event.clientY - dragStartVals.y;
+    dragBar.addEventListener("pointermove", event => {
+        if (!note.isDragging) return;
 
-    const newLeft = Math.max(0, Math.min(dragStartVals.left + deltaX, window.innerWidth - note.offsetWidth));
-    const newTop = Math.max(0, Math.min(dragStartVals.top + deltaY, window.innerHeight - note.offsetHeight));
+        const deltaX = event.clientX - note.updateStartVals.x;
+        const deltaY = event.clientY - note.updateStartVals.y;
 
-    // Update position on screen
-    note.style.left = `${newLeft}px`;
-    note.style.top = `${newTop}px`;
+        const newLeft = Math.max(0, Math.min(note.updateStartVals.left + deltaX, window.innerWidth - note.offsetWidth));
+        const newTop = Math.max(0, Math.min(note.updateStartVals.top + deltaY, window.innerHeight - note.offsetHeight));
 
-    // Send position to CSS to force browser to adhere to boundary constraints
-    noteText.style.setProperty("--left-pos", `${noteText.getBoundingClientRect().left}px`);
-    noteText.style.setProperty("--top-pos", `${noteText.getBoundingClientRect().top}px`);
-});
+        // Update position on screen
+        note.style.left = `${newLeft}px`;
+        note.style.top = `${newTop}px`;
 
-function stopDragging(event) {
-    dragBar.releasePointerCapture(event.pointerId);
-    isDragging = false;
+        // Send position to CSS to force browser to adhere to boundary constraints
+        textarea.style.setProperty("--left-pos", `${textarea.getBoundingClientRect().left}px`);
+        textarea.style.setProperty("--top-pos", `${textarea.getBoundingClientRect().top}px`);
+    });
 
-    // Store original width and height in case the window is resized
-    resizeStartVals.width = noteText.getBoundingClientRect().width;
-    resizeStartVals.height = noteText.getBoundingClientRect().height;
+    function stopDragging(event) {
+        dragBar.releasePointerCapture(event.pointerId);
+        note.isDragging = false;
+
+        // Store original width and height in case the window is resized
+        note.updateStartVals.width = textarea.getBoundingClientRect().width;
+        note.updateStartVals.height = textarea.getBoundingClientRect().height;
+    }
+
+    dragBar.addEventListener("pointerup", stopDragging);
+    dragBar.addEventListener("pointercancel", stopDragging);
+
+    textareaSizeSyncer.observe(textarea);
 }
-
-dragBar.addEventListener("pointerup", stopDragging);
-dragBar.addEventListener("pointercancel", stopDragging);
 
 const textareaSizeSyncer = new ResizeObserver(entries => {
     for (let entry of entries) {
@@ -57,27 +88,37 @@ const textareaSizeSyncer = new ResizeObserver(entries => {
 
         // Store new width and height if the textarea is not actively being resized by the window
         // This prevents the note from continuing to shrink while the window is resized
-        if (noteText.getBoundingClientRect().right < window.innerWidth) resizeStartVals.width = noteText.getBoundingClientRect().width;
-        if (noteText.getBoundingClientRect().bottom < window.innerHeight) resizeStartVals.height = noteText.getBoundingClientRect().height;
+        const updateStartVals = entry.target.parent.updateStartVals;
+        const textareaRect = entry.target.getBoundingClientRect();
+
+        if (textareaRect.right < window.innerWidth) updateStartVals.width = textareaRect.width;
+        if (textareaRect.bottom < window.innerHeight) updateStartVals.height = textareaRect.height;
     }
 });
 
-textareaSizeSyncer.observe(noteText);
-
 window.addEventListener("resize", event => {
-    if (note.getBoundingClientRect().right >= window.innerWidth) {
-        const newLeft = Math.max(0, window.innerWidth - resizeStartVals.width);
+    for (const note of noteGroup.getElementsByClassName("note")) {
+        const dragBar = note.querySelector(".drag-bar");
+        const textarea = note.querySelector("textarea");
 
-        note.style.left = `${newLeft}px`;
-        noteText.style.setProperty("--left-pos", `${newLeft}px`);
-        noteText.style.width = `${resizeStartVals.width}px`;
+        if (note.getBoundingClientRect().right >= window.innerWidth) {
+            const newLeft = Math.max(0, window.innerWidth - note.updateStartVals.width);
+
+            note.style.left = `${newLeft}px`;
+            textarea.style.setProperty("--left-pos", `${newLeft}px`);
+            textarea.style.width = `${note.updateStartVals.width}px`;
+        }
+
+        if (note.getBoundingClientRect().bottom >= window.innerHeight) {
+            const newTop = Math.max(0, window.innerHeight - note.updateStartVals.height - dragBar.getBoundingClientRect().height);
+
+            note.style.top = `${newTop}px`;
+            textarea.style.setProperty("--top-pos", `${newTop}px`);
+            textarea.style.height = `${note.updateStartVals.height}px`;
+        }
     }
+});
 
-    if (note.getBoundingClientRect().bottom >= window.innerHeight) {
-        const newTop = Math.max(0, window.innerHeight - resizeStartVals.height - dragBar.getBoundingClientRect().height);
-
-        note.style.top = `${newTop}px`;
-        noteText.style.setProperty("--top-pos", `${newTop}px`);
-        noteText.style.height = `${resizeStartVals.height}px`;
-    }
+addNoteBtn.addEventListener("click", event => {
+    createNote();
 });
