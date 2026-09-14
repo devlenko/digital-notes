@@ -12,10 +12,12 @@ function createNote() {
         </div>    
     `);
 
+    // Specify which note in the HTML to add functionality to
     const note = noteGroup.getElementsByClassName("note")[noteCount];
     const dragBar = note.querySelector(".drag-bar");
     const textarea = note.querySelector("textarea");
     noteCount++;
+    bringNoteFront(note);
     
     // Define note values for dragging and resizing
     note.isDragging = false;
@@ -73,7 +75,17 @@ function createNote() {
     dragBar.addEventListener("pointerup", stopDragging);
     dragBar.addEventListener("pointercancel", stopDragging);
 
+    note.addEventListener("pointerdown", event => bringNoteFront(note));
+    
     textareaSizeSyncer.observe(textarea);
+}
+
+function bringNoteFront(note) {
+    if (note.style.zIndex === "1") return;
+
+    for (const currNote of noteGroup.getElementsByClassName("note")) {
+        currNote.style.zIndex = currNote === note ? 1 : 0;
+    }
 }
 
 const textareaSizeSyncer = new ResizeObserver(entries => {
