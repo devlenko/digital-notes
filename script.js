@@ -7,15 +7,20 @@ function createNote() {
     // Create and store the note and inner elements
     noteGroup.insertAdjacentHTML("beforeend", `
         <div class="note">
-            <div class="drag-bar"></div>
+            <div class="drag-bar">
+                <button type="button" class="note-btn delete-note-btn" aria-label="Delete Note">
+                    <span aria-hidden="true">X</span>
+                </button>
+            </div>
             <textarea></textarea> 
-        </div>    
+        </div>
     `);
 
     // Specify which note in the HTML to add functionality to
     const note = noteGroup.getElementsByClassName("note")[noteCount];
     const dragBar = note.querySelector(".drag-bar");
     const textarea = note.querySelector("textarea");
+    const deleteNoteBtn = note.querySelector(".delete-note-btn");
     noteCount++;
     bringNoteFront(note);
     
@@ -76,6 +81,15 @@ function createNote() {
     dragBar.addEventListener("pointercancel", stopDragging);
 
     note.addEventListener("pointerdown", event => bringNoteFront(note));
+    deleteNoteBtn.addEventListener("pointerdown", event => {
+        // Prevent drag bar from trying to register a drag
+        event.stopPropagation();
+
+        textareaSizeSyncer.unobserve(textarea);
+        stopDragging(event);
+        note.remove();
+        noteCount--;
+    });
     
     textareaSizeSyncer.observe(textarea);
 }

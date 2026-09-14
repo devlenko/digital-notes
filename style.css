@@ -19,9 +19,18 @@
 .drag-bar {
     height: 20px;
     background-color: goldenrod;
+    padding: 0 5px;
+
+    display: flex;
+    justify-content: right;
 
     /* Disable default browser touch controls */
     touch-action: none;
+}
+
+.note-btn {
+    user-select: none;
+    -webkit-user-select: none; /* Safari */
 }
 
 textarea {
