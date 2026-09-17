@@ -6,6 +6,11 @@
     box-sizing: border-box;
 }
 
+body {
+    height: 100dvh;
+    display: flex;
+}
+
 .note {
     min-width: 50px;
     max-width: 100%;
@@ -44,8 +49,18 @@ textarea {
     max-height: calc(100vh - var(--top-pos));
 }
 
-.btn-group {
+.main-btn-group {
     position: fixed;
     bottom: 1rem;
     right: 1rem;
+}
+
+dialog {
+    place-self: center;
+}
+
+.modal-btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
 }

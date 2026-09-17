@@ -2,7 +2,11 @@ let noteCount = 0;
 
 const noteGroup = document.querySelector(".note-group");
 const addNoteBtn = document.getElementById("add-note-btn");
+
 const deleteAllBtn = document.getElementById("delete-all-btn");
+const modal = document.getElementById("modal");
+const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
+const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
 
 function createNote(savedStartVals, savedText = "") {
     // Create and store the note and inner elements
@@ -178,9 +182,14 @@ addNoteBtn.addEventListener("click", event => {
     saveNotes();
 });
 
-deleteAllBtn.addEventListener("click", event => {
+deleteAllBtn.addEventListener("click", event => modal.showModal());
+
+cancelDeleteBtn.addEventListener("click", event => modal.close());
+
+confirmDeleteBtn.addEventListener("click", event => {
     noteGroup.replaceChildren();
     saveNotes();
+    modal.close();
 });
 
 

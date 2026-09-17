@@ -11,10 +11,18 @@
 <body>
     <div class="note-group"></div>
 
-    <div class="btn-group">
+    <div class="main-btn-group">
         <button type="button" id="add-note-btn">Add Note</button>
         <button type="button" id="delete-all-btn">Delete All</button>
     </div>
+
+    <dialog id="modal">
+        <p>Are you sure you want to delete all notes? <strong>This cannot be undone.</strong></p>
+        <div class="modal-btn-group">
+            <button type="button" id="cancel-delete-btn">Cancel</button>
+            <button type="button" id="confirm-delete-btn">OK</button> 
+        </div>
+    </dialog>
 
     <script src="script.js"></script>
 </body>
