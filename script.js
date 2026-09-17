@@ -2,6 +2,7 @@ let noteCount = 0;
 
 const noteGroup = document.querySelector(".note-group");
 const addNoteBtn = document.getElementById("add-note-btn");
+const deleteAllBtn = document.getElementById("delete-all-btn");
 
 function createNote(savedStartVals, savedText = "") {
     // Create and store the note and inner elements
@@ -174,6 +175,11 @@ window.addEventListener("resize", event => {
 
 addNoteBtn.addEventListener("click", event => {
     createNote(null);
+    saveNotes();
+});
+
+deleteAllBtn.addEventListener("click", event => {
+    noteGroup.replaceChildren();
     saveNotes();
 });
 
