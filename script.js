@@ -182,12 +182,15 @@ addNoteBtn.addEventListener("click", event => {
     saveNotes();
 });
 
-deleteAllBtn.addEventListener("click", event => modal.showModal());
+deleteAllBtn.addEventListener("click", event => {
+    if (noteCount > 0) modal.showModal()
+});
 
 cancelDeleteBtn.addEventListener("click", event => modal.close());
 
 confirmDeleteBtn.addEventListener("click", event => {
     noteGroup.replaceChildren();
+    noteCount = 0;
     saveNotes();
     modal.close();
 });
