@@ -6,6 +6,11 @@
     box-sizing: border-box;
 }
 
+:root {
+    --drag-bar-col: dimgray;
+    --textarea-col: ghostwhite;
+}
+
 body {
     height: 100dvh;
     display: flex;
@@ -23,11 +28,12 @@ body {
 
 .drag-bar {
     height: 20px;
-    background-color: goldenrod;
+    background-color: var(--drag-bar-col);
     padding: 0 5px;
 
     display: flex;
     justify-content: right;
+    gap: 0.5rem;
 
     /* Disable default browser touch controls */
     touch-action: none;
@@ -42,11 +48,30 @@ textarea {
     min-width: inherit;
     min-height: 15px;
 
+    background-color: var(--textarea-col);
+
     /* Prevents browser from fighting with custom resize logic when resize is attempted */
     --left-pos: 0px;
     --top-pos: 0px;
     max-width: calc(100vw - var(--left-pos));
     max-height: calc(100vh - var(--top-pos));
+}
+
+.yellow {
+    --drag-bar-col: #F6992D;
+    --textarea-col: #FFC800;
+}
+.red {
+    --drag-bar-col: #A75A5A;
+    --textarea-col: #F08475;
+}
+.blue {
+    --drag-bar-col: #4C7680;
+    --textarea-col: #57C5C7;
+}
+.green {
+    --drag-bar-col: #7DBA60;
+    --textarea-col: #C2D11B;
 }
 
 .main-btn-group {

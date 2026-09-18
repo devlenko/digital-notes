@@ -1,3 +1,5 @@
+const COLORS = ["yellow", "red", "blue", "green"];
+
 let noteCount = 0;
 
 const noteGroup = document.querySelector(".note-group");
@@ -8,11 +10,14 @@ const modal = document.getElementById("modal");
 const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
 const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
 
-function createNote(savedStartVals, savedText = "") {
+function createNote(savedStartVals = null, savedText = "", savedColor = "") {
     // Create and store the note and inner elements
     noteGroup.insertAdjacentHTML("beforeend", `
         <div class="note">
             <div class="drag-bar">
+                <button type="button" class="note-btn change-color-btn" aria-label="Change Color">
+                    <span aria-hidden="true" role="img">🎨</span>
+                </button>
                 <button type="button" class="note-btn delete-note-btn" aria-label="Delete Note">
                     <span aria-hidden="true">X</span>
                 </button>
@@ -25,6 +30,7 @@ function createNote(savedStartVals, savedText = "") {
     const note = noteGroup.getElementsByClassName("note")[noteCount];
     const dragBar = note.querySelector(".drag-bar");
     const textarea = note.querySelector("textarea");
+    const changeColorBtn = note.querySelector(".change-color-btn");
     const deleteNoteBtn = note.querySelector(".delete-note-btn");
     noteCount++;
     bringNoteFront(note);
@@ -39,16 +45,18 @@ function createNote(savedStartVals, savedText = "") {
         width:  savedStartVals?.width ?? textarea.getBoundingClientRect().width,
         height: savedStartVals?.height ?? textarea.getBoundingClientRect().height
     };
+    note.color = savedColor || COLORS[0];
     note.noteText = textarea.value = savedText;
     textarea.parent = note;
 
-    // Update position and size on screen
+    // Update position, size, and color on screen
     note.style.left = `${note.updateStartVals.left}px`;
     note.style.top = `${note.updateStartVals.top}px`;
     textarea.style.width = `${note.updateStartVals.width}px`;
     textarea.style.height = `${note.updateStartVals.height}px`;
     textarea.style.setProperty("--left-pos", `${textarea.getBoundingClientRect().left}px`);
     textarea.style.setProperty("--top-pos", `${textarea.getBoundingClientRect().top}px`);
+    note.classList.add(note.color);
 
     dragBar.addEventListener("pointerdown", event => {
         // Force the bar to keep tracking the event even if it moves outside the bar's bounds
@@ -101,6 +109,16 @@ function createNote(savedStartVals, savedText = "") {
     dragBar.addEventListener("pointercancel", stopDragging);
 
     note.addEventListener("pointerdown", event => bringNoteFront(note));
+
+    changeColorBtn.addEventListener("pointerdown", event => {
+        // Prevent drag bar from trying to register a drag
+        event.stopPropagation();
+
+        const newCol = COLORS[(COLORS.indexOf(note.color) + 1) % COLORS.length];
+        note.classList.replace(note.color, newCol);
+        note.color = newCol;
+        saveNotes();
+    });
     deleteNoteBtn.addEventListener("pointerdown", event => {
         // Prevent drag bar from trying to register a drag
         event.stopPropagation();
@@ -110,11 +128,11 @@ function createNote(savedStartVals, savedText = "") {
         note.remove();
         noteCount--;
     });
+
     textarea.addEventListener("input", event => {
         note.noteText = textarea.value;
         saveNotes();
-    });
-    
+    }); 
     textareaSizeSyncer.observe(textarea);
 }
 
@@ -178,7 +196,7 @@ window.addEventListener("resize", event => {
 });
 
 addNoteBtn.addEventListener("click", event => {
-    createNote(null);
+    createNote();
     saveNotes();
 });
 
@@ -199,6 +217,6 @@ confirmDeleteBtn.addEventListener("click", event => {
 // NOTE LOADING
 if (localStorage.getItem("notes")) {
     for (const savedNote of Object.values(JSON.parse(localStorage.getItem("notes")))) {
-        createNote(savedNote.updateStartVals, savedNote.noteText);
+        createNote(savedNote.updateStartVals, savedNote.noteText, savedNote.color);
     }
 }
