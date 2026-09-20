@@ -16,10 +16,10 @@ function createNote(savedStartVals = null, savedText = "", savedColor = "") {
         <div class="note">
             <div class="drag-bar">
                 <button type="button" class="note-btn change-color-btn" aria-label="Change Color">
-                    <span aria-hidden="true" role="img">🎨</span>
+                    <i class="fa-solid fa-brush" aria-hidden="true" role="img"></i>
                 </button>
                 <button type="button" class="note-btn delete-note-btn" aria-label="Delete Note">
-                    <span aria-hidden="true">X</span>
+                    <i class="fa-solid fa-xmark" aria-hidden="true" role="img"></i>
                 </button>
             </div>
             <textarea></textarea> 
