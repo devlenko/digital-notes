@@ -121,6 +121,31 @@ button:not(.note-btn) {
     position: fixed;
     bottom: 1rem;
     right: 1rem;
+
+    display: flex;
+    gap: 1rem;
+}
+
+.main-btn {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+
+    display: grid;
+    place-items: center;
+
+    padding: 5px;
+    border: none;
+    font-size: 2rem;
+
+    border-radius: 25%;
+    background-color: #FED8B1;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+}
+
+.main-btn:hover {
+    background-color: #D99A6C;
 }
 
 dialog {
