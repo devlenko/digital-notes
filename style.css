@@ -30,6 +30,11 @@ body {
     font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
+/* Fixes button text/icon color on iOS Safari */
+button {
+    color: black;
+}
+
 .note {
     min-width: 75px;
     max-width: 100%;
@@ -66,21 +71,27 @@ body {
     aspect-ratio: 1 / 1;
     overflow: hidden;
 
-    border: none;
+    appearance: none;
+    -webkit-appearance: none;
+
     border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.20);
     transition: background-color 0.2s ease;
     cursor: pointer;
+
+    /* Fix anti-aliasing issues */
+    border: 1px solid transparent;
+    background-clip: padding-box;
+
+    /* Fix mobile defaults that stretch the button */
+    flex: none;
+    padding: 0;
 
     display: grid;
     place-items: center;
 
     user-select: none;
     -webkit-user-select: none; /* Safari */
-}
-
-.note-btn:hover {
-    background-color: rgba(0, 0, 0, 0.35);
 }
 
 textarea {
@@ -148,10 +159,6 @@ button:not(.note-btn) {
     cursor: pointer;
 }
 
-.main-btn:hover {
-    background-color: var(--default-btn-hover-col);
-}
-
 dialog {
     padding: 20px;
     text-align: center;
@@ -191,6 +198,16 @@ dialog:open {
     cursor: pointer;    
 }
 
-.modal-btn:hover {
-    background-color: var(--default-btn-hover-col);
+@media (hover: hover) {
+    .note-btn:hover {
+        background-color: rgba(0, 0, 0, 0.35);
+    }
+
+    .main-btn:hover {
+        background-color: var(--default-btn-hover-col);
+    }
+
+    .modal-btn:hover {
+        background-color: var(--default-btn-hover-col);
+    }
 }
